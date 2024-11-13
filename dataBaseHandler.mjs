@@ -11,17 +11,23 @@ export default class DataBaseHandler{
         this.code = {
             getLessons: 0, 
             search: 1,
+            update: 2,
         }
     }
     // make a connetion to the database
     establishConnection = () =>{
+      try{
+        this.client.isActive = true
+      }catch(err){
+        if(err){throw err}
 
+      }
     }
 
     // get all lessons from the database
     getLessons = () =>{
         if(!this.client.isActive){
-            return this.statusMessages.inActive
+            return []
         }
         let lessons = [
             {
@@ -113,17 +119,20 @@ export default class DataBaseHandler{
             return
         }
     }
+    // update quantity of lessons in the database
+    update = (lessonId, newQty) =>{
+
+    }
 
     parse = (code, req, res) =>{
-        console.log(code)
         if(code == this.code.getLessons){
-            console.log("[+] Returning lessons")
-            res.send(this.getLessons())
+            let lessons = this.getLessons()
+            res.send(lessons)
         }else if(code == this.code.search){
             console.log("Wow I searched the query")
             res.send("Success")
-        }else{
-
+        }else if(code == this.code.update){
+          console.log("Update value in database")
         }
     }
 }
