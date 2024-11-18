@@ -5,8 +5,9 @@ export default class DataBaseHandler{
     constructor(dbURL){
         this.dbURL = dbURL
         this.baseImageURI = "https://cst3144-cw-express.onrender.com"
+        //this.baseImageURI = "http://localhost:5174"
         this.client = {
-            isActive: true,
+            isActive: null,
             instance: {
               mainDb: null,
               main: null
@@ -55,7 +56,7 @@ export default class DataBaseHandler{
       await this.client.instance.main.close()
     }
 
-    generateResultObj(sucess, message, obj){
+    generateResultObj(success, message, obj){
       return {status: {value: success, message: message}, value: obj}
     }
 
