@@ -17,7 +17,15 @@ export default class DataBaseHandler{
             order: {
               success: "Order stored successfully",
               fail: "Order could not be stored"
-            } 
+            },
+            found: {
+              success: "Document located",
+              fail: "Document not located"
+            },
+            lessons: {
+              success: "Returned all lessons",
+              fail: "Lessons could not be found"
+            }
         }
         this.code = {
             getLessons: 0, 
@@ -41,16 +49,23 @@ export default class DataBaseHandler{
         if(err){throw err}
       }
     }
+
     terminateConnection = async() =>{
       if(!this.client.isActive) return
       await this.client.instance.main.close()
     }
 
+    generateResultObj(sucess, message, obj){
+      return {status: {value: success, message: message}, value: obj}
+    }
+
     // get all lessons from the database
     getLessons = async() =>{
-        if(!this.client.isActive){
-            return []
-        }
+      let returnObj
+      if(!this.client.isActive){
+        returnObj = this.generateResultObj(false, this.statusMessages.inActive, null)
+        return returnObj
+      }
         // let lessons = [
         //     {
         //         name: "Mathematics",
@@ -133,16 +148,18 @@ export default class DataBaseHandler{
         //         imageURL: "",
         //       },
         // ]
-        const cursor = this.client.instance.mainDb.collection("lessons").find()
-        if(await this.client.instance.mainDb.collection("lessons").countDocuments() == 0){
-          return []
-        }
-        let lessons = []
-        for await(const doc of cursor){
-          doc.imageURL = this.baseImageURI + doc.imageURL
-          lessons.push(doc)
-        }
-        return lessons
+      const cursor = this.client.instance.mainDb.collection("lessons").find()
+      if(await this.client.instance.mainDb.collection("lessons").countDocuments() == 0){
+        returnObj = this.generateResultObj(false, this.statusMessages.lessons.fail, null)
+        return returnObj
+      }
+      let lessons = []
+      for await(const doc of cursor){
+        doc.imageURL = this.baseImageURI + doc.imageURL
+        lessons.push(doc)
+      }
+      returnObj = this.generateResultObj(true, this.statusMessages.lessons.success, lessons)
+      return returnObj
     }
     // filters lessons from the database by provided query
     search = (query) =>{
@@ -151,11 +168,16 @@ export default class DataBaseHandler{
         }
     }
     // update quantity of lessons in the database
-    update = (lessonId, newQty) =>{
+    update = async(lessonId, newQty) =>{
+      try{
 
+      }catch(err){
+        if(err){throw err}
+      }
     }
 
     addOrder = async(order) =>{
+      let returnObj
       try{
         let orderId = uuidv4()
         let newOrder = {
@@ -164,17 +186,19 @@ export default class DataBaseHandler{
         }
         console.log("[+] Adding order with id: "+orderId)
         await this.client.instance.mainDb.collection("orders").insertOne(newOrder)
-        return this.statusMessages.order.success
+        returnObj = this.generateResultObj(true, this.statusMessages.order.success, null)
+        return returnObj
       }catch(err){
         if(err){throw err}
-        return this.statusMessages.order.fail
+        returnObj = this.generateResultObj(false, this.statusMessages.order.fail, null)
+        return returnObj
       }
     }
 
     parse = async(code, req, res) =>{
         if(code == this.code.getLessons){
-            let lessons = await this.getLessons()
-            res.send(lessons)
+            let respObj = await this.getLessons()
+            res.send(respObj)
         }else if(code == this.code.search){
             console.log("Wow I searched the query")
             res.send("Success")
