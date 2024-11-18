@@ -4,7 +4,7 @@ import { v4 as uuidv4} from 'uuid';
 export default class DataBaseHandler{
     constructor(dbURL){
         this.dbURL = dbURL
-        this.baseImageURI = "http://127.0.0.1:5174"
+        this.baseImageURI = "https://cst3144-cw-express.onrender.com"
         this.client = {
             isActive: true,
             instance: {

@@ -3,6 +3,7 @@ import bodyParser from 'body-parser'
 import {dirname} from 'path'
 import DataBaseHandler from './dataBaseHandler.mjs'
 import { fileURLToPath } from 'url'
+import morgan from 'morgan'
 
 const app = express()
 const databaseURL = "mongodb+srv://test_123:HZheHQXdKAV1pO3h@cst3144.lxvfe.mongodb.net/?retryWrites=true&w=majority&appName=CST3144"
@@ -11,6 +12,8 @@ const portNumber = 5174
 const rootDir = dirname(fileURLToPath(import.meta.url))
 
 app.use(bodyParser.json())
+
+app.use((morgan('tiny')))
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -22,6 +25,16 @@ app.use((req, res, next) => {
 //images folder made available to public
 app.use(express.static("images"))
 
+// display error message for unfound files
+// app.use((err, req, res, next)=>{
+//     if(err.statusCode === 404){
+//         console.log("[!] Image not located")
+//         res.status(404).send("Image not found!");
+//     }else{
+//         next(err)
+//     }
+// })
+
 app.get("/lessons", (req, res)=>{
     db.parse(db.code.getLessons, req, res)
 })
@@ -30,7 +43,7 @@ app.post("/order", (req, res)=>{
     db.parse(db.code.order, req, res)
 })
 
-app.put("/update/:lessonId-:qty", (req, res)=>{
+app.put("/update/", (req, res)=>{
     db.parse(db.code.update, req, res)
 })
 
