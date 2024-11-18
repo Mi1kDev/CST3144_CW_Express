@@ -5,7 +5,8 @@ import DataBaseHandler from './dataBaseHandler.mjs'
 import { fileURLToPath } from 'url'
 
 const app = express()
-const db = new DataBaseHandler("test")
+const databaseURL = "mongodb+srv://test_123:HZheHQXdKAV1pO3h@cst3144.lxvfe.mongodb.net/?retryWrites=true&w=majority&appName=CST3144"
+const db = new DataBaseHandler(databaseURL)
 const portNumber = 5174
 const rootDir = dirname(fileURLToPath(import.meta.url))
 
@@ -25,8 +26,8 @@ app.get("/lessons", (req, res)=>{
     db.parse(db.code.getLessons, req, res)
 })
 
-app.post("/search", (req, res)=>{
-    db.parse(db.code.search, req, res)
+app.post("/order", (req, res)=>{
+    db.parse(db.code.order, req, res)
 })
 
 app.put("/update/:lessonId-:qty", (req, res)=>{
@@ -35,3 +36,15 @@ app.put("/update/:lessonId-:qty", (req, res)=>{
 
 console.log("[+] Server running at localhost:"+portNumber)
 app.listen(portNumber)
+
+process.on("SIGINT", async()=>{
+    try{
+        await db.terminateConnection()
+    }catch(err){
+        console.log(err)
+    }finally{
+        console.log("[!] Terminating database connection")
+        process.exit()
+    }
+    
+})
