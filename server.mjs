@@ -3,6 +3,7 @@ import bodyParser from 'body-parser'
 import {dirname} from 'path'
 import DataBaseHandler from './dataBaseHandler.mjs'
 import { fileURLToPath } from 'url'
+import cors from 'cors'
 import morgan from 'morgan'
 
 const app = express()
@@ -15,12 +16,7 @@ app.use(bodyParser.json())
 
 app.use((morgan('tiny')))
 
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    next();
-});
+app.use(cors())
 
 //images folder made available to public
 app.use(express.static("images"))
