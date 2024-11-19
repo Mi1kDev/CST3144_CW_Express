@@ -19,6 +19,10 @@ const db = new DataBaseHandler(databaseURL)
 const portNumber = 5174
 const rootDir = dirname(fileURLToPath(import.meta.url))
 
+io.on("connect", (client)=>{
+    console.log("Client connected.")
+})
+
 // middleware to parse request bodies from json format to javascript objects
 app.use(bodyParser.json())
 
