@@ -27,16 +27,6 @@ app.use(cors())
 //images folder made available to public
 app.use(express.static("images"))
 
-// returns an error message to the sender should a 404 resource not found error be called
-app.use((req, res, next)=>{
-    if(req.statusCode === 404){
-        console.log("[!] Error not found!")
-        res.status(404).send("Error resource not found")
-    }else{
-        next()
-    }
-})
-
 // api endpoint to return all lessons in the database to the requester
 app.get("/lessons", (req, res)=>{
     db.parse(db.code.getLessons, req, res)
