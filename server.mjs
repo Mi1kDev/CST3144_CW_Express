@@ -21,6 +21,9 @@ app.use(bodyParser.json())
 // middleware to log the various connections and communications to and from the server
 app.use((morgan('tiny')))
 
+//images folder made available to public
+app.use(express.static("images"))
+
 // middleware to allow cross reference communication or communication across two different domains
 const corsOptions = {origin: "*",   
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",   
@@ -30,9 +33,6 @@ const corsOptions = {origin: "*",
     optionsSuccessStatus: 204 
 };
 app.use(cors(corsOptions))
-
-//images folder made available to public
-app.use(express.static("images"))
 
 // api endpoint to return all lessons in the database to the requester
 app.get("/lessons", (req, res)=>{
