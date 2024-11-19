@@ -169,16 +169,18 @@ export default class DataBaseHandler{
         }
     }
     // update quantity of lessons in the database
-    update = async(updateObj) =>{
+    update = async(updateObjects) =>{
       try{
-        let lessonId = updateObj.lessonId
-        let property = updateObj.property
-        let query = {lessonId: lessonId}
-        let updateValues = {}
-        updateValues[property.type] = property.value
-        let newValues = { $set : updateValues}
-        await this.client.instance.mainDb.collection("lesson").updateOne(query, updateValues)
-        console.log("[+] Lesson ID: "+lessonId+" updated with values: "+updateValues)
+        for(let updateObj of updateObjects){
+          let lessonId = updateObj.lessonId
+          let property = updateObj.property
+          let query = {lessonId: lessonId}
+          let updateValues = {}
+          updateValues[property.type] = property.value
+          let newValues = { $set : updateValues}
+          await this.client.instance.mainDb.collection("lesson").updateOne(query, updateValues)
+          console.log("[+] Lesson ID: "+lessonId+" updated with values: "+updateValues)
+        } 
       }catch(err){
         if(err){throw err}
       }
