@@ -4,10 +4,14 @@ import {dirname} from 'path'
 import DataBaseHandler from './dataBaseHandler.mjs'
 import { fileURLToPath } from 'url'
 import cors from 'cors'
+import { createServer } from 'http'
 import morgan from 'morgan'
+import { Server } from 'socket.io'
 
 // create express js app
 const app = express()
+const server = createServer(app)
+const io = new Server(server, {cors: {origin: "*"}})
 // url for associated mongodb database
 const databaseURL = "mongodb+srv://test_123:HZheHQXdKAV1pO3h@cst3144.lxvfe.mongodb.net/?retryWrites=true&w=majority&appName=CST3144"
 // create an instantiation of the DatabaseHandler custom class
@@ -26,7 +30,6 @@ app.use(cors())
 
 //images folder made available to public
 app.use(express.static("images"))
-
 
 // api endpoint to return all lessons in the database to the requester
 app.get("/lessons", (req, res)=>{
