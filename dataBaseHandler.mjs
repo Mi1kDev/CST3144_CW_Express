@@ -169,9 +169,16 @@ export default class DataBaseHandler{
         }
     }
     // update quantity of lessons in the database
-    update = async(lessonId, newQty) =>{
+    update = async(updateObj) =>{
       try{
-
+        let lessonId = updateObj.lessonId
+        let property = updateObj.property
+        let query = {lessonId: lessonId}
+        let updateValues = {}
+        updateValues[property.type] = property.value
+        let newValues = { $set : updateValues}
+        await this.client.instance.mainDb.collection("lesson").updateOne(query, updateValues)
+        console.log("[+] Lesson ID: "+lessonId+" updated with values: "+updateValues)
       }catch(err){
         if(err){throw err}
       }
@@ -197,17 +204,21 @@ export default class DataBaseHandler{
     }
 
     parse = async(code, req, res) =>{
-        if(code == this.code.getLessons){
-            let respObj = await this.getLessons()
-            res.send(respObj)
-        }else if(code == this.code.search){
-            console.log("Wow I searched the query")
-            res.send("Success")
-        }else if(code == this.code.update){
-          console.log("Update value in database")
-        }else if(code == this.code.order){
-          let resp = await this.addOrder(req.body)
-          res.send(resp)
-        }
+      if(!this.client.isActive){
+        returnObj = this.generateResultObj(false, this.statusMessages.inActive, null)
+        return returnObj
+      }
+      if(code == this.code.getLessons){
+          let respObj = await this.getLessons()
+          res.send(respObj)
+      }else if(code == this.code.search){
+          console.log("Wow I searched the query")
+          res.send("Success")
+      }else if(code == this.code.update){
+        let resp = await this.update(req.body)
+      }else if(code == this.code.order){
+        let resp = await this.addOrder(req.body)
+        res.send(resp)
+      }
     }
 }

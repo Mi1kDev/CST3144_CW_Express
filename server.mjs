@@ -6,44 +6,53 @@ import { fileURLToPath } from 'url'
 import cors from 'cors'
 import morgan from 'morgan'
 
+// create express js app
 const app = express()
+// url for associated mongodb database
 const databaseURL = "mongodb+srv://test_123:HZheHQXdKAV1pO3h@cst3144.lxvfe.mongodb.net/?retryWrites=true&w=majority&appName=CST3144"
+// create an instantiation of the DatabaseHandler custom class
 const db = new DataBaseHandler(databaseURL)
 const portNumber = 5174
 const rootDir = dirname(fileURLToPath(import.meta.url))
 
+// middleware to parse request bodies from json format to javascript objects
 app.use(bodyParser.json())
 
+// middleware to log the various connections and communications to and from the server
 app.use((morgan('tiny')))
 
+// middleware to allow cross reference communication or communication across two different domains
 app.use(cors())
 
 //images folder made available to public
 app.use(express.static("images"))
 
-// display error message for unfound files
-// app.use((err, req, res, next)=>{
-//     if(err.statusCode === 404){
-//         console.log("[!] Image not located")
-//         res.status(404).send("Image not found!");
-//     }else{
-//         next(err)
-//     }
-// })
+// returns an error message to the sender should a 404 resource not found error be called
+app.use((req, res, next)=>{
+    if(req.statusCode === 404){
+        console.log("[!] Error not found!")
+        res.status(404).send("Error resource not found")
+    }else{
+        next()
+    }
+})
 
+// api endpoint to return all lessons in the database to the requester
 app.get("/lessons", (req, res)=>{
     db.parse(db.code.getLessons, req, res)
 })
 
+// api endpoint to store a newly created order object in the databas
 app.post("/order", (req, res)=>{
     db.parse(db.code.order, req, res)
 })
 
-app.put("/update/", (req, res)=>{
+// api endpoint to update
+app.put("/update", (req, res)=>{
     db.parse(db.code.update, req, res)
 })
 
-console.log("[+] Server running at localhost:"+portNumber)
+console.log("[+] Server running on port:"+portNumber)
 app.listen(portNumber)
 
 process.on("SIGINT", async()=>{
