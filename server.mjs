@@ -22,7 +22,7 @@ app.use(bodyParser.json())
 app.use((morgan('tiny')))
 
 // middleware to allow cross reference communication or communication across two different domains
-app.use(cors)
+app.use(cors())
 
 //images folder made available to public
 app.use(express.static("images"))
