@@ -45,8 +45,6 @@ export default class DataBaseHandler{
         this.client.instance.mainDb = this.client.instance.main.db("ClubData")
         console.log("[!] Database connection established!")
         this.client.isActive = true
-        let results = await this.parse(this.code.search, "at", null)
-        console.log(results)
       }catch(err){
         this.client.isActive = false
         if(err){throw err}
@@ -171,15 +169,21 @@ export default class DataBaseHandler{
             return
         }
         let query = {$or: [
-          {name: {$regex: searchTerm}}, 
-          {location: {$regex: searchTerm}},
-          {description: {$regex: searchTerm}},
-          {location: {$regex: searchTerm}},
-          {availableSlots: {$regex: searchTerm}},
-          {cost: {$regex: searchTerm}}
+          {name:  searchTerm}, 
+          {location: searchTerm},
+          {description:searchTerm},
+          {location:searchTerm},
+          {availableSlotsStr: searchTerm},
+          {costStr:searchTerm},
         ]}
         let lessons = []
-        const cursor = await this.client.instance.mainDb.collection("lessons").find(query)
+        console.log("Search Term : "+searchTerm)
+        let cursor = await this.client.instance.mainDb.collection("lessons").aggregate(
+          [{
+            $addFields: {costStr: {$toString: "$cost"}, availableSlotsStr: {$toString: "$availableSlots"}}
+          },{$match: query}
+        ])
+        //const cursor = await this.client.instance.mainDb.collection("lessons").find(query)
         for await(let doc of cursor){
           lessons.push(doc)
         }
