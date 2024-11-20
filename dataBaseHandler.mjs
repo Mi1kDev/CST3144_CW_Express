@@ -211,11 +211,11 @@ export default class DataBaseHandler{
           let property = updateObj.property
           let query = {lessonId: lessonId}
           let updateValues = {}
-          updateValues[property.type] = parseInt(property.value)
+          updateValues[property.type] = property.value
           let newValues = { $set : updateValues}
           console.log(query)
           console.log(updateValues)
-          await this.client.instance.mainDb.collection("lesson").updateOne(query, newValues)
+          const result = await this.client.instance.mainDb.collection("lessons").updateOne(query, newValues)
           console.log("[+] Lesson ID: "+lessonId+" updated with values:",updateValues)
           resObj = this.generateResultObj(true, this.statusMessages.update.success, null)
           return resObj
