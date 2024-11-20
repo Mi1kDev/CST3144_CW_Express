@@ -168,6 +168,15 @@ export default class DataBaseHandler{
         if(!this.client.isActive){
             return
         }
+        let lessons = []
+        if(searchTerm === ""){
+          const cursorPtr = await this.client.instance.mainDb.collection("lessons").find()
+          for await (let doc of cursorPtr){
+            doc.imageURL = this.baseImageURI + doc.imageURL
+            lessons.push(doc)
+          }
+          return lessons
+        }
         let query = {$or: [
           {name:  {$regex: searchTerm, $options: "i"}}, 
           {location: {$regex: searchTerm, $options: "i"}},
@@ -176,13 +185,12 @@ export default class DataBaseHandler{
           {availableSlotsStr: {$regex: searchTerm}},
           {costStr: {$regex: searchTerm}},
         ]}
-        let lessons = []
-        let cursor = await this.client.instance.mainDb.collection("lessons").aggregate(
+        
+        const cursor = await this.client.instance.mainDb.collection("lessons").aggregate(
           [{
             $addFields: {costStr: {$toString: "$cost"}, availableSlotsStr: {$toString: "$availableSlots"}}
           },{$match: query}
         ])
-        //const cursor = await this.client.instance.mainDb.collection("lessons").find(query)
         for await(let doc of cursor){
           doc.imageURL = this.baseImageURI + doc.imageURL
           lessons.push(doc)
