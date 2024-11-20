@@ -45,9 +45,9 @@ app.put("/update", (req, res)=>{
 })
 
 console.log("[+] Server running on port:"+portNumber)
-app.listen(portNumber)
-const server = createServer(app)
-const io = new Server(server, {cors: {origin: "*"}})
+const httpServer = app.listen(portNumber)
+//const server = createServer(app)
+const io = new Server(httpServer)
 
 io.on("connect", (client)=>{
     console.log("Client connected.")
