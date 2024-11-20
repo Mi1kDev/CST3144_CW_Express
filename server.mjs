@@ -52,11 +52,8 @@ const io = new Server(httpServer)
 io.on("connect", (client)=>{
     console.log("Connected with socket: "+client.id)
     client.on("search", async(searchTerm)=>{
-        console.log(searchTerm)
         let results = await db.parse(db.code.search, searchTerm, null)
-        console.log(results)
-        let arrCopy = [...results]
-        io.emit("found", arrCopy)
+        io.emit("found", results)
     })
 })
 
