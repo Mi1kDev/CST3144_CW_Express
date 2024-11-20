@@ -177,7 +177,6 @@ export default class DataBaseHandler{
           {costStr: {$regex: searchTerm}},
         ]}
         let lessons = []
-        console.log("Search Term : "+searchTerm)
         let cursor = await this.client.instance.mainDb.collection("lessons").aggregate(
           [{
             $addFields: {costStr: {$toString: "$cost"}, availableSlotsStr: {$toString: "$availableSlots"}}
