@@ -10,18 +10,12 @@ import { Server } from 'socket.io'
 
 // create express js app
 const app = express()
-const server = createServer(app)
-const io = new Server(server, {cors: {origin: "*"}})
 // url for associated mongodb database
 const databaseURL = "mongodb+srv://test_123:HZheHQXdKAV1pO3h@cst3144.lxvfe.mongodb.net/?retryWrites=true&w=majority&appName=CST3144"
 // create an instantiation of the DatabaseHandler custom class
 const db = new DataBaseHandler(databaseURL)
 const portNumber = 5174
 const rootDir = dirname(fileURLToPath(import.meta.url))
-
-io.on("connect", (client)=>{
-    console.log("Client connected.")
-})
 
 // middleware to parse request bodies from json format to javascript objects
 app.use(bodyParser.json())
@@ -52,6 +46,12 @@ app.put("/update", (req, res)=>{
 
 console.log("[+] Server running on port:"+portNumber)
 app.listen(portNumber)
+const server = createServer(app)
+const io = new Server(server, {cors: {origin: "*"}})
+
+io.on("connect", (client)=>{
+    console.log("Client connected.")
+})
 
 process.on("SIGINT", async()=>{
     try{
