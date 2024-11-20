@@ -52,6 +52,7 @@ const io = new Server(httpServer)
 io.on("connect", (client)=>{
     console.log("Connected with socket: "+client.id)
     client.on("search", async(searchTerm)=>{
+        console.log(searchTerm)
         let results = await db.parse(db.code.search, searchTerm, null)
         let resultObj = {data: results}
         io.emit("found", resultObj)
