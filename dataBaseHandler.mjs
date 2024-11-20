@@ -168,8 +168,12 @@ export default class DataBaseHandler{
             return
         }
         let query = {$or: [{name: {$regex: searchTerm}}, {location: {$regex: searchTerm}}]}
-        
-        let lessons = await this.client.instance.mainDb.collection("lesson").find(query)
+
+        let lessons = []
+        const cursor = await this.client.instance.mainDb.collection("lesson").find(query)
+        for await(let doc of cursor){
+          lessons.push(doc)
+        }
         return lessons
     }
     // update quantity of lessons in the database

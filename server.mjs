@@ -54,6 +54,7 @@ io.on("connect", (client)=>{
     client.on("search", async(searchTerm)=>{
         console.log(searchTerm)
         let results = await db.parse(db.code.search, searchTerm, null)
+        console.log(results)
         let arrCopy = [...results]
         io.emit("found", arrCopy)
     })
