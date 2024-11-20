@@ -53,7 +53,8 @@ io.on("connect", (client)=>{
     console.log("Connected with socket: "+client.id)
     client.on("search", async(searchTerm)=>{
         let results = await db.parse(db.code.search, searchTerm, null)
-        io.emit("found", results)
+        let resultObj = {data: results}
+        io.emit("found", resultObj)
     })
 })
 
