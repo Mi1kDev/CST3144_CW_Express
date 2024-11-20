@@ -1,10 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
-import {dirname} from 'path'
 import DataBaseHandler from './dataBaseHandler.mjs'
-import { fileURLToPath } from 'url'
 import cors from 'cors'
-import { createServer } from 'http'
 import morgan from 'morgan'
 import { Server } from 'socket.io'
 
@@ -15,7 +12,6 @@ const databaseURL = "mongodb+srv://test_123:HZheHQXdKAV1pO3h@cst3144.lxvfe.mongo
 // create an instantiation of the DatabaseHandler custom class
 const db = new DataBaseHandler(databaseURL)
 const portNumber = 5174
-const rootDir = dirname(fileURLToPath(import.meta.url))
 
 // middleware to parse request bodies from json format to javascript objects
 app.use(bodyParser.json())

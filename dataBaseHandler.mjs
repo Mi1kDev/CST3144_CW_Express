@@ -5,7 +5,6 @@ export default class DataBaseHandler{
     constructor(dbURL){
         this.dbURL = dbURL
         this.baseImageURI = "https://cst3144-cw-express.onrender.com"
-        //this.baseImageURI = "http://localhost:5174"
         this.client = {
             isActive: null,
             instance: {
@@ -26,7 +25,11 @@ export default class DataBaseHandler{
             lessons: {
               success: "Returned all lessons",
               fail: "Lessons could not be found"
-            }
+            },
+            update: {
+              success: "Updated values in database",
+              fail: "Failed to update values"
+            },
         }
         this.code = {
             getLessons: 0, 
@@ -163,7 +166,8 @@ export default class DataBaseHandler{
       returnObj = this.generateResultObj(true, this.statusMessages.lessons.success, lessons)
       return returnObj
     }
-    // filters lessons from the database by provided query
+
+    // filters lessons from the database by provided search term
     search = async(searchTerm) =>{
         if(!this.client.isActive){
             return
@@ -197,24 +201,33 @@ export default class DataBaseHandler{
         }
         return lessons
     }
-    // update quantity of lessons in the database
+
+    // update property of a lesson object in the database
     update = async(updateObjects) =>{
+      let resObj
       try{
         for(let updateObj of updateObjects){
           let lessonId = updateObj.lessonId
           let property = updateObj.property
           let query = {lessonId: lessonId}
           let updateValues = {}
-          updateValues[property.type] = property.value
+          updateValues[property.type] = parseInt(property.value)
           let newValues = { $set : updateValues}
-          await this.client.instance.mainDb.collection("lesson").updateOne(query, updateValues)
-          console.log("[+] Lesson ID: "+lessonId+" updated with values: "+updateValues)
+          console.log(query)
+          console.log(updateValues)
+          await this.client.instance.mainDb.collection("lesson").updateOne(query, newValues)
+          console.log("[+] Lesson ID: "+lessonId+" updated with values:",updateValues)
+          resObj = this.generateResultObj(true, this.statusMessages.update.success, null)
+          return resObj
         } 
       }catch(err){
         if(err){throw err}
+        resObj = this.generateResultObj(false, this.statusMessages.update.fail, null)
+        return resObj
       }
     }
 
+    // adds a new order to the databse collection
     addOrder = async(order) =>{
       let returnObj
       try{
@@ -234,6 +247,7 @@ export default class DataBaseHandler{
       }
     }
 
+    // parses operations for the database handler to perform by matching the provided code to the intended operation
     parse = async(code, req, res) =>{
       if(code == this.code.getLessons){
           let respObj = await this.getLessons()
