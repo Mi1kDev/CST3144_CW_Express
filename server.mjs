@@ -53,6 +53,16 @@ io.on("connect", (client)=>{
     console.log("Client connected.")
 })
 
+io.on("search", async(searchTerm)=>{
+    db.parse(db.code.search, searchTerm, null)
+    .then(lessons=>{
+        io.emit("found", lessons)
+    })
+    .finally(()=>{
+
+    })
+})
+
 process.on("SIGINT", async()=>{
     try{
         await db.terminateConnection()

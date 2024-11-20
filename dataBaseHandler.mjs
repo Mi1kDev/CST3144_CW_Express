@@ -163,10 +163,14 @@ export default class DataBaseHandler{
       return returnObj
     }
     // filters lessons from the database by provided query
-    search = (query) =>{
+    search = async(searchTerm) =>{
         if(!this.client.isActive){
             return
         }
+        let query = {$or: [{name: {$regex: searchTerm}}, {location: {$regex: searchTerm}}]}
+        
+        let lessons = await this.client.instance.mainDb.collection("lesson").find(query)
+        return lessons
     }
     // update quantity of lessons in the database
     update = async(updateObjects) =>{
@@ -206,18 +210,15 @@ export default class DataBaseHandler{
     }
 
     parse = async(code, req, res) =>{
-      if(!this.client.isActive){
-        returnObj = this.generateResultObj(false, this.statusMessages.inActive, null)
-        return returnObj
-      }
       if(code == this.code.getLessons){
           let respObj = await this.getLessons()
           res.send(respObj)
       }else if(code == this.code.search){
-          console.log("Wow I searched the query")
-          res.send("Success")
+          let lessons = await this.search(req)
+          return lessons
       }else if(code == this.code.update){
         let resp = await this.update(req.body)
+        res.send(resp)
       }else if(code == this.code.order){
         let resp = await this.addOrder(req.body)
         res.send(resp)
