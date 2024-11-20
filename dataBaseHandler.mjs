@@ -169,10 +169,10 @@ export default class DataBaseHandler{
             return
         }
         let query = {$or: [
-          {name:  searchTerm}, 
-          {location: {$regex: searchTerm}},
-          {description: {$regex: searchTerm}},
-          {location: {$regex: searchTerm}},
+          {name:  {$regex: searchTerm, $options: "i"}}, 
+          {location: {$regex: searchTerm, $options: "i"}},
+          {description: {$regex: searchTerm, $options: "i"}},
+          {location: {$regex: searchTerm, $options: "i"}},
           {availableSlotsStr: {$regex: searchTerm}},
           {costStr: {$regex: searchTerm}},
         ]}
