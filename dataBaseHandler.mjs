@@ -1,10 +1,13 @@
 import {MongoClient} from 'mongodb';
 import { v4 as uuidv4} from 'uuid';
 
+// class to manage and control interactions between the server and database
 export default class DataBaseHandler{
     constructor(dbURL){
         this.dbURL = dbURL
+        // base url for the render.com instance, this is prepended to any static urls
         this.baseImageURI = "https://cst3144-cw-express.onrender.com"
+        // stores the state of the database connection as well as instances of the main database and cluster
         this.client = {
             isActive: null,
             instance: {
@@ -12,6 +15,7 @@ export default class DataBaseHandler{
               main: null
             }
         }
+        // stores status messages that should be returned under certain conditions
         this.statusMessages = {
             inActive: "Database connection could not be established",
             order: {
@@ -31,42 +35,52 @@ export default class DataBaseHandler{
               fail: "Failed to update values"
             },
         }
+        // stores codes representing various possible operations
         this.code = {
             getLessons: 0, 
             search: 1,
             update: 2,
             order: 3
         }
+        // attempts to create a connection to the database
         this.establishConnection()
     }
     // make a connetion to the database
     establishConnection = async() =>{
       try{
+        // creates an instance of a MongoClient using provided database url
         this.client.instance.main = new MongoClient(this.dbURL)
+        // attempts to connect to the database
         await this.client.instance.main.connect()
+        // check that the database is up
         await this.client.instance.main.db("ClubData").command({ping: 1})
         this.client.instance.mainDb = this.client.instance.main.db("ClubData")
         console.log("[!] Database connection established!")
+        // if the database is active then this is reflected with the state of the client variable
         this.client.isActive = true
       }catch(err){
+        // if the database is not active then this is reflected with the state of the client variable
         this.client.isActive = false
         if(err){throw err}
       }
     }
 
+    // terminates connection to the database if the database had been connected before
     terminateConnection = async() =>{
       if(!this.client.isActive) return
       await this.client.instance.main.close()
       this.client.isActive = false
     }
 
+    // generates a uniform object to send back the status of the the request, an appropriate message as well as any necessary return data 
     generateResultObj(success, message, obj){
       return {status: {value: success, message: message}, value: obj}
     }
 
-    // get all lessons from the database
+    // returns all lessons in the database
     getLessons = async() =>{
       let returnObj
+      // checks that the database is active. If it is not then it returns an object detailing the error
       if(!this.client.isActive){
         returnObj = this.generateResultObj(false, this.statusMessages.inActive, null)
         return returnObj
@@ -153,13 +167,17 @@ export default class DataBaseHandler{
         //         imageURL: "",
         //       },
         // ]
+      // finds all lessons in the lessons collection of the database
       const cursor = this.client.instance.mainDb.collection("lessons").find()
+      // returns an error message if no documents are located
       if(await this.client.instance.mainDb.collection("lessons").countDocuments() == 0){
         returnObj = this.generateResultObj(false, this.statusMessages.lessons.fail, null)
         return returnObj
       }
       let lessons = []
+      // stores all located documents in a list
       for await(const doc of cursor){
+        // prepends the render.com url to the image url stored in the database
         doc.imageURL = this.baseImageURI + doc.imageURL
         lessons.push(doc)
       }
