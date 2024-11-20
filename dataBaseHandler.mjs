@@ -170,11 +170,11 @@ export default class DataBaseHandler{
         }
         let query = {$or: [
           {name:  searchTerm}, 
-          {location: searchTerm},
-          {description:searchTerm},
-          {location:searchTerm},
-          {availableSlotsStr: searchTerm},
-          {costStr:searchTerm},
+          {location: {$regex: searchTerm}},
+          {description: {$regex: searchTerm}},
+          {location: {$regex: searchTerm}},
+          {availableSlotsStr: {$regex: searchTerm}},
+          {costStr: {$regex: searchTerm}},
         ]}
         let lessons = []
         console.log("Search Term : "+searchTerm)
