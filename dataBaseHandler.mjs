@@ -45,6 +45,8 @@ export default class DataBaseHandler{
         this.client.instance.mainDb = this.client.instance.main.db("ClubData")
         console.log("[!] Database connection established!")
         this.client.isActive = true
+        let results = await this.parse(this.code.search, "at", null)
+        console.log(results)
       }catch(err){
         this.client.isActive = false
         if(err){throw err}
@@ -54,6 +56,7 @@ export default class DataBaseHandler{
     terminateConnection = async() =>{
       if(!this.client.isActive) return
       await this.client.instance.main.close()
+      this.client.isActive = false
     }
 
     generateResultObj(success, message, obj){
@@ -167,10 +170,16 @@ export default class DataBaseHandler{
         if(!this.client.isActive){
             return
         }
-        let query = {$or: [{name: {$regex: searchTerm}}, {location: {$regex: searchTerm}}]}
-
+        let query = {$or: [
+          {name: {$regex: searchTerm}}, 
+          {location: {$regex: searchTerm}},
+          {description: {$regex: searchTerm}},
+          {location: {$regex: searchTerm}},
+          {availableSlots: {$regex: searchTerm}},
+          {cost: {$regex: searchTerm}}
+        ]}
         let lessons = []
-        const cursor = await this.client.instance.mainDb.collection("lesson").find(query)
+        const cursor = await this.client.instance.mainDb.collection("lessons").find(query)
         for await(let doc of cursor){
           lessons.push(doc)
         }
