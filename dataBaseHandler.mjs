@@ -184,6 +184,7 @@ export default class DataBaseHandler{
         ])
         //const cursor = await this.client.instance.mainDb.collection("lessons").find(query)
         for await(let doc of cursor){
+          doc.imageURL = this.baseImageURI + doc.imageURL
           lessons.push(doc)
         }
         return lessons
