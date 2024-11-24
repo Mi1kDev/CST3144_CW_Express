@@ -85,88 +85,6 @@ export default class DataBaseHandler{
         returnObj = this.generateResultObj(false, this.statusMessages.inActive, null)
         return returnObj
       }
-        // let lessons = [
-        //     {
-        //         name: "Mathematics",
-        //         description: "Mathematics for beginners",
-        //         location: "103 Address Street",
-        //         cost: 10,
-        //         availableSlots: 5,
-        //         imageURL: this.baseURI+'/icons/Calculator.png',
-        //       },
-        //       {
-        //         name: "English",
-        //         description: "English for beginners",
-        //         location: "123 Address Street",
-        //         cost: 20,
-        //         availableSlots: 5,
-        //         imageURL: "",
-        //       },
-        //       {
-        //         name: "Spanish",
-        //         description: "Spanish for beginners",
-        //         location: "123 Address Street",
-        //         cost: 15,
-        //         availableSlots: 5,
-        //         imageURL: "",
-        //       },
-        //       {
-        //         name: "Chemistry",
-        //         description: "Chemistry for beginners",
-        //         location: "123 Address Street",
-        //         cost: 10,
-        //         availableSlots: 5,
-        //         imageURL: this.baseURI+"/icons/Chemistry.png",
-        //       },
-        //       {
-        //         name: "Physics",
-        //         description: "Physics for beginners",
-        //         location: "123 Address Street",
-        //         cost: 16,
-        //         availableSlots: 5,
-        //         imageURL: "",
-        //       },
-        //       {
-        //         name: "Biology",
-        //         description: "Biology for beginners",
-        //         location: "123 Address Street",
-        //         cost: 21,
-        //         availableSlots: 5,
-        //         imageURL: "",
-        //       },
-        //       {
-        //         name: "Mechanical Engineering",
-        //         description: "Mechanical Engineering for beginners",
-        //         location: "123 Address Street",
-        //         cost: 20,
-        //         availableSlots: 5,
-        //         imageURL: "",
-        //       },
-        //       {
-        //         name: "IT",
-        //         description: "IT for beginners",
-        //         location: "123 Address Street",
-        //         cost: 25,
-        //         availableSlots: 5,
-        //         imageURL: "",
-        //       },
-        //       {
-        //         name: "Computer Science",
-        //         description: "Computer Science for beginners",
-        //         location: "123 Address Street",
-        //         cost: 20,
-        //         availableSlots: 5,
-        //         imageURL: "",
-        //       },
-        //       {
-        //         name: "French",
-        //         description: "French for beginners",
-        //         location: "123 Address Street",
-        //         cost: 8,
-        //         availableSlots: 5,
-        //         imageURL: "",
-        //       },
-        // ]
       // finds all lessons in the lessons collection of the database
       const cursor = this.client.instance.mainDb.collection("lessons").find()
       // returns an error message if no documents are located
@@ -192,7 +110,7 @@ export default class DataBaseHandler{
         }
         let lessons = []
         if(searchTerm === ""){
-          const cursorPtr = await this.client.instance.mainDb.collection("lessons").find()
+          const cursorPtr = this.client.instance.mainDb.collection("lessons").find()
           for await (let doc of cursorPtr){
             doc.imageURL = this.baseImageURI + doc.imageURL
             lessons.push(doc)
