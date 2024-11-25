@@ -34,6 +34,10 @@ export default class DataBaseHandler{
               success: "Updated values in database",
               fail: "Failed to update values"
             },
+            search: {
+              success: "Items found",
+              fail: "Something went wrong searching for item"
+            }
         }
         // stores codes representing various possible operations
         this.code = {
@@ -108,34 +112,47 @@ export default class DataBaseHandler{
         if(!this.client.isActive){
             return
         }
+      try {
         let lessons = []
-        if(searchTerm === ""){
+        let returnObj
+        if (searchTerm === "") {
+          
           const cursorPtr = this.client.instance.mainDb.collection("lessons").find()
-          for await (let doc of cursorPtr){
+          for await (let doc of cursorPtr) {
             doc.imageURL = this.baseImageURI + doc.imageURL
             lessons.push(doc)
           }
-          return lessons
+          returnObj = this.generateResultObj(true, this.statusMessages.search.success, lessons)
+          return returnObj
         }
-        let query = {$or: [
-          {name:  {$regex: searchTerm, $options: "i"}}, 
-          {location: {$regex: searchTerm, $options: "i"}},
-          {description: {$regex: searchTerm, $options: "i"}},
-          {location: {$regex: searchTerm, $options: "i"}},
-          {availableSlotsStr: {$regex: searchTerm}},
-          {costStr: {$regex: searchTerm}},
-        ]}
-        
+        let query = {
+          $or: [
+            { name: { $regex: searchTerm, $options: "i" } },
+            { location: { $regex: searchTerm, $options: "i" } },
+            { description: { $regex: searchTerm, $options: "i" } },
+            { location: { $regex: searchTerm, $options: "i" } },
+            { availableSlotsStr: { $regex: searchTerm } },
+            { costStr: { $regex: searchTerm } },
+          ]
+        }
+
         const cursor = await this.client.instance.mainDb.collection("lessons").aggregate(
           [{
-            $addFields: {costStr: {$toString: "$cost"}, availableSlotsStr: {$toString: "$availableSlots"}}
-          },{$match: query}
-        ])
-        for await(let doc of cursor){
+            $addFields: { costStr: { $toString: "$cost" }, availableSlotsStr: { $toString: "$availableSlots" } }
+          }, { $match: query }
+          ])
+        for await (let doc of cursor) {
           doc.imageURL = this.baseImageURI + doc.imageURL
           lessons.push(doc)
         }
-        return lessons
+        returnObj = this.generateResultObj(true, this.statusMessages.search.success, lessons)
+        return returnObj
+      } catch (err) {
+        console.log("[!] Error: ",err)
+        returnObj = this.generateResultObj(false, this.statusMessages.search.fail, [])
+        
+      }
+        
     }
 
     // update property of a lesson object in the database
@@ -189,7 +206,6 @@ export default class DataBaseHandler{
       }else if(code == this.code.search){
           let lessons = await this.search(req.params.query)
           res.send(lessons)
-          return lessons
       }else if(code == this.code.update){
         let resp = await this.update(req.body)
         res.send(resp)

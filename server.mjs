@@ -4,7 +4,6 @@ import DataBaseHandler from './dataBaseHandler.mjs'
 import cors from 'cors'
 import morgan from 'morgan'
 import 'dotenv/config.js'
-import { Server } from 'socket.io'
 
 // create express js app
 const app = express()
@@ -55,21 +54,7 @@ app.use((req, res, next)=>{
 
 console.log("[+] Server running on port:"+portNumber)
 // have server listen on provided port
-const httpServer = app.listen(portNumber)
-// create socket using http server
-const io = new Server(httpServer)
-
-// callback when a client socket connects to the server socket
-io.on("connect", (client)=>{
-    console.log(`Client connected with id: [${client.id}]`)
-    // when a search signal is emitted the following is performed
-    client.on("search", async(searchTerm)=>{
-        // searches the database for items with properties matching the provided search term
-        let results = await db.parse(db.code.search, searchTerm, null)
-        // when results are found the server emits a signal indicating that results are found and returns all of said results
-        io.emit("found", results)
-    })
-})
+app.listen(portNumber)
 
 // when the process is interrupted, therefore CTRL+C
 process.on("SIGINT", async()=>{
