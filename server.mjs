@@ -34,6 +34,10 @@ app.get("/lessons", (req, res)=>{
     db.parse(db.code.getLessons, req, res)
 })
 
+app.get("/search/:query", (req, res)=>{
+    db.parse(db.code.search, req, res)
+})
+
 // api endpoint to store a newly created order object in the databas
 app.post("/order", (req, res)=>{
     db.parse(db.code.order, req, res)

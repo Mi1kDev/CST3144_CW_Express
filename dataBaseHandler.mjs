@@ -149,8 +149,6 @@ export default class DataBaseHandler{
           let updateValues = {}
           updateValues[property.type] = property.value
           let newValues = { $set : updateValues}
-          console.log(query)
-          console.log(updateValues)
           const result = await this.client.instance.mainDb.collection("lessons").updateOne(query, newValues)
           console.log("[+] Lesson ID: "+lessonId+" updated with values:",updateValues)
           resObj = this.generateResultObj(true, this.statusMessages.update.success, null)
@@ -189,7 +187,8 @@ export default class DataBaseHandler{
           let respObj = await this.getLessons()
           res.send(respObj)
       }else if(code == this.code.search){
-          let lessons = await this.search(req)
+          let lessons = await this.search(req.params.query)
+          res.send(lessons)
           return lessons
       }else if(code == this.code.update){
         let resp = await this.update(req.body)
