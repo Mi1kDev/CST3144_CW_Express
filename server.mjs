@@ -3,12 +3,16 @@ import bodyParser from 'body-parser'
 import DataBaseHandler from './dataBaseHandler.mjs'
 import cors from 'cors'
 import morgan from 'morgan'
+import 'dotenv/config.js'
 import { Server } from 'socket.io'
 
 // create express js app
 const app = express()
 // url for associated mongodb database
-const databaseURL = "mongodb+srv://test_123:HZheHQXdKAV1pO3h@cst3144.lxvfe.mongodb.net/?retryWrites=true&w=majority&appName=CST3144"
+const username = process.env.DB_USERNAME
+const password = process.env.DB_PASSWORD
+const databaseURL = `mongodb+srv://${username}:${password}@cst3144.lxvfe.mongodb.net/?retryWrites=true&w=majority&appName=CST3144`
+console.log(databaseURL)
 // create an instantiation of the DatabaseHandler custom class
 const db = new DataBaseHandler(databaseURL)
 const portNumber = 5174
