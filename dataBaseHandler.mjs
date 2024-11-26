@@ -163,7 +163,9 @@ export default class DataBaseHandler{
           let property = updateObj.property
           let query = {lessonId: lessonId}
           let updateValues = {}
-          updateValues[property.type] = property.value
+          for(let i = 0; i < property.type.length; i++){
+            updateValues[property.type[i]] = property.value[i]
+          }
           let newValues = { $set : updateValues}
           const result = await this.client.instance.mainDb.collection("lessons").updateOne(query, newValues)
           console.log("[+] Lesson ID: "+lessonId+" updated with values:",updateValues)
