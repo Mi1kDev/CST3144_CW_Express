@@ -110,12 +110,13 @@ export default class DataBaseHandler{
     // filters lessons from the database by provided search term
     search = async(searchTerm) =>{
       let returnObj
+        // if the database is inactive returns an  object informing as such
         if(!this.client.isActive){
             returnObj = this.generateResultObj(false, this.statusMessages.inActive, [])
         }
       try {
         let lessons = []
-        
+        // returns all items in the lessons collection if given an empty search term
         if (searchTerm === "") {
           const cursorPtr = this.client.instance.mainDb.collection("lessons").find()
           for await (let doc of cursorPtr) {
@@ -125,6 +126,8 @@ export default class DataBaseHandler{
           returnObj = this.generateResultObj(true, this.statusMessages.search.success, lessons)
           return returnObj
         }
+        // or query to search through all relevant properties with the provided search term
+        // if any match is found for any property then it is a valid return item
         let query = {
           $or: [
             { name: { $regex: searchTerm, $options: "i" } },
@@ -135,12 +138,15 @@ export default class DataBaseHandler{
             { costStr: { $regex: searchTerm } },
           ]
         }
+        // uses an aggregate to convert integer properties to string values for the search
         const cursor = await this.client.instance.mainDb.collection("lessons").aggregate(
           [{
             $addFields: { costStr: { $toString: "$cost" }, availableSlotsStr: { $toString: "$availableSlots" } }
           }, { $match: query }
           ])
+        // adds all found lessons to a list which is returned
         for await (let doc of cursor) {
+          // prepends the server base url  to the image url
           doc.imageURL = this.baseImageURI + doc.imageURL
           lessons.push(doc)
         }
@@ -148,6 +154,7 @@ export default class DataBaseHandler{
         return returnObj
       } catch (err) {
         console.log("[!] Error: ",err)
+        // returns a message informing of an error
         returnObj = this.generateResultObj(false, this.statusMessages.search.fail, [])
         
       }
@@ -157,18 +164,26 @@ export default class DataBaseHandler{
     // update property of a lesson object in the database
     update = async(updateObjects) =>{
       let resObj
+      // returns an error message if the database is not active
+      if(!this.client.isActive){
+        returnObj = this.generateResultObj(false, this.statusMessages.inActive, null)
+        return returnObj
+      }
       try{
         for(let updateObj of updateObjects){
           let lessonId = updateObj.lessonId
           let property = updateObj.property
           let query = {lessonId: lessonId}
           let updateValues = {}
+          // uses the provided property types and their associated values to build an object of properties to update
           for(let i = 0; i < property.type.length; i++){
             updateValues[property.type[i]] = property.value[i]
           }
           let newValues = { $set : updateValues}
+          // updates the lesson with the provided id with the new values
           const result = await this.client.instance.mainDb.collection("lessons").updateOne(query, newValues)
           console.log("[+] Lesson ID: "+lessonId+" updated with values:",updateValues)
+          // returns a success message
           resObj = this.generateResultObj(true, this.statusMessages.update.success, null)
           return resObj
         } 
@@ -182,13 +197,20 @@ export default class DataBaseHandler{
     // adds a new order to the databse collection
     addOrder = async(order) =>{
       let returnObj
+      // returns an error if the database is not active
+      if(!this.client.isActive){
+        returnObj = this.generateResultObj(false, this.statusMessages.inActive, null)
+        return returnObj
+      }
       try{
+        // generates a unique id for the order
         let orderId = uuidv4()
         let newOrder = {
           orderId: orderId,
           user: order
         }
         console.log("[+] Adding order with id: "+orderId)
+        // inserts order into the database
         await this.client.instance.mainDb.collection("orders").insertOne(newOrder)
         returnObj = this.generateResultObj(true, this.statusMessages.order.success, null)
         return returnObj
