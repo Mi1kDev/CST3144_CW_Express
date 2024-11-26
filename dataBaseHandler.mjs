@@ -109,14 +109,14 @@ export default class DataBaseHandler{
 
     // filters lessons from the database by provided search term
     search = async(searchTerm) =>{
+      let returnObj
         if(!this.client.isActive){
-            return
+            returnObj = this.generateResultObj(false, this.statusMessages.inActive, [])
         }
       try {
         let lessons = []
-        let returnObj
+        
         if (searchTerm === "") {
-          
           const cursorPtr = this.client.instance.mainDb.collection("lessons").find()
           for await (let doc of cursorPtr) {
             doc.imageURL = this.baseImageURI + doc.imageURL
@@ -135,7 +135,6 @@ export default class DataBaseHandler{
             { costStr: { $regex: searchTerm } },
           ]
         }
-
         const cursor = await this.client.instance.mainDb.collection("lessons").aggregate(
           [{
             $addFields: { costStr: { $toString: "$cost" }, availableSlotsStr: { $toString: "$availableSlots" } }
